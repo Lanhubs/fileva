@@ -200,9 +200,7 @@ export const BackgroundRemover: React.FC<BackgroundRemoverProps> = ({
                  Zero server uploads.
               </p>
             </div>
-            <span className="text-[11px] font-mono px-2 py-0.5 bg-background text-text-muted rounded border border-border">
-              WebAssembly / WebGPU
-            </span>
+          
           </div>
 
           <DropZone onFileSelected={onFileSelect} acceptText="PNG, JPEG, WebP, AVIF, BMP" />
