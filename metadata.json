@@ -1,0 +1,6 @@
+{
+  "name": "Fileva - Developer Media Toolkit",
+  "description": "Production browser-based developer utility suite for image, video, and audio compression, background removal, app icon generation, color extraction, and cropping—processed entirely locally in the browser.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

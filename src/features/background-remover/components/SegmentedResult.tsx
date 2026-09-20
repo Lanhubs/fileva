@@ -38,7 +38,7 @@ export default ({
                         : backdrop === 'light'
                             ? '#ffffff'
                             : backdrop === 'custom'
-                                ? customBgColor
+                                ? (customBgColor ?? undefined)
                                 : undefined,
             }}
         >
