@@ -4,6 +4,7 @@ import { FiMenu, FiX, FiRefreshCw, FiImage } from 'react-icons/fi';
 import { ToolId, ImageFileState } from '../../types';
 import { TOOLS_CONFIG } from './Sidebar';
 import { formatBytes } from '../../lib/file-utils';
+import filevaLogo from '../../assets/fileva.png';
 
 interface NavbarProps {
   activeTool: ToolId;
@@ -36,9 +37,20 @@ export const Navbar: React.FC<NavbarProps> = ({
             {mobileMenuOpen ? <FiX className="w-5 h-5" /> : <FiMenu className="w-5 h-5" />}
           </button>
 
+          <div className="xl:hidden flex items-center gap-2.5 shrink-0">
+            <img
+              src={filevaLogo}
+              alt="Fileva logo"
+              className="w-8 h-8 rounded object-contain bg-white"
+            />
+            <span className="text-sm font-bold tracking-tight text-text-main">
+              FILEVA
+            </span>
+          </div>
+
           <div>
             <h1 className="text-base font-bold text-text-main flex items-center gap-2">
-              <span>{currentToolConfig.label}</span>
+              <span className="truncate">{currentToolConfig.label}</span>
               {activeTool !== 'home' && (
                 <span className="hidden sm:inline-block text-xs font-normal text-text-muted border-l border-border pl-2">
                   {currentToolConfig.shortDesc}
