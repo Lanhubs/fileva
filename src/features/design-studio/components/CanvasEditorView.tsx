@@ -88,6 +88,25 @@ export const CanvasEditorView: React.FC<CanvasEditorViewProps> = ({
     };
   }, [page, dimensions, assets]);
 
+  // In-app editor board zooming via mouse wheel & trackpad gestures
+  useEffect(() => {
+    const container = containerRef.current;
+    if (!container || !onZoomChange) return;
+
+    const handleWheel = (e: WheelEvent) => {
+      // Stop browser document scrolling or browser-level zooming
+      e.preventDefault();
+      e.stopPropagation();
+
+      const zoomStep = e.ctrlKey || e.metaKey ? 0.03 : 0.05;
+      const delta = e.deltaY < 0 ? zoomStep : -zoomStep;
+      onZoomChange(Math.max(0.1, Math.min(2.0, Number((zoom + delta).toFixed(2)))));
+    };
+
+    container.addEventListener('wheel', handleWheel, { passive: false });
+    return () => container.removeEventListener('wheel', handleWheel);
+  }, [zoom, onZoomChange]);
+
   return (
     <div
       ref={containerRef}

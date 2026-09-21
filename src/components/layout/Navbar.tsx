@@ -30,35 +30,23 @@ export const Navbar: React.FC<NavbarProps> = ({
   return (
     <header className="sticky top-0 z-30 bg-surface border-b border-border text-text-main">
       <div className="px-4 py-3 flex items-center justify-between">
-        {/* Left: Mobile hamburger & Active Tool Name & Desktop Sidebar Toggle */}
+        {/* Left: Mobile hamburger & Active Tool Name */}
         <div className="flex items-center gap-3">
           <button
             id="mobile-menu-button"
             onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-            className="md:hidden p-2 rounded text-text-muted hover:bg-background hover:text-text-main focus:outline-hidden focus:ring-1 focus:ring-primary"
+            className="md:hidden p-2 rounded text-text-muted hover:bg-background hover:text-text-main focus:outline-hidden focus:ring-1 focus:ring-primary cursor-pointer"
             aria-label="Toggle navigation menu"
           >
             {mobileMenuOpen ? <FiX className="w-5 h-5" /> : <FiMenu className="w-5 h-5" />}
           </button>
 
-          {/* Desktop Toggle Button when collapsed */}
-          {onToggleSidebar && (
-            <button
-              onClick={onToggleSidebar}
-              id="desktop-sidebar-toggle-btn"
-              className="hidden md:flex p-1.5 rounded text-text-muted hover:text-text-main hover:bg-background border border-transparent hover:border-border cursor-pointer transition-colors"
-              title={isSidebarCollapsed ? 'Expand sidebar' : 'Collapse sidebar'}
-              aria-label={isSidebarCollapsed ? 'Expand sidebar' : 'Collapse sidebar'}
-            >
-              <FiMenu className="w-4 h-4" />
-            </button>
-          )}
-
-          <div className="xl:hidden flex items-center gap-2.5 shrink-0">
+          {/* Brand logo in header strictly reserved for smartphone view when sidebar is hidden */}
+          <div className="md:hidden flex items-center gap-2.5 shrink-0">
             <img
               src={filevaLogo}
               alt="Fileva logo"
-              className="w-8 h-8 rounded object-contain bg-white"
+              className="w-7 h-7 rounded object-contain bg-white"
             />
             <span className="text-sm font-bold tracking-tight text-text-main">
               FILEVA
@@ -123,7 +111,14 @@ export const Navbar: React.FC<NavbarProps> = ({
               >
                 <Icon className={`w-4 h-4 shrink-0 ${isActive ? 'text-primary' : 'text-text-muted'}`} />
                 <div className="flex-1 min-w-0">
-                  <div className={`truncate ${isActive ? 'text-text-main font-semibold' : ''}`}>{tool.label}</div>
+                  <div className={`truncate flex items-center justify-between gap-1.5 ${isActive ? 'text-text-main font-semibold' : ''}`}>
+                    <span>{tool.label}</span>
+                    {tool.id === 'design-studio' && (
+                      <span className="text-[9px] bg-background border border-border text-text-muted px-1.5 py-0.5 rounded font-mono font-normal shrink-0">
+                        Tablet / PC
+                      </span>
+                    )}
+                  </div>
                   <div className={`text-[11px] truncate ${isActive ? 'text-primary' : 'text-text-muted'}`}>
                     {tool.shortDesc}
                   </div>

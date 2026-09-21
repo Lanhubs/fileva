@@ -7,6 +7,7 @@ import { CanvasEditorView } from './components/CanvasEditorView';
 import { InspectorLayersPanel } from './components/InspectorLayersPanel';
 import { PageReorderBar } from './components/PageReorderBar';
 import { TemplateSelectorModal } from './components/TemplateSelectorModal';
+import { StudioDeviceRestrictionView } from './components/StudioDeviceRestrictionView';
 import { StudioCursorMode } from './cursor-types';
 import { useStudioProjectActions } from './useStudioProjectActions';
 import { useStudioExport } from './useStudioExport';
@@ -35,6 +36,22 @@ export const AppStoreDesignStudio: React.FC<AppStoreDesignStudioProps> = ({
   const [cursorMode, setCursorMode] = useState<StudioCursorMode>('select');
   const [isTemplateModalOpen, setIsTemplateModalOpen] = useState<boolean>(false);
   const [errorNotification, setErrorNotification] = useState<string | null>(null);
+
+  // Restrict Studio to Tablet & Desktop displays (>= 768px)
+  const [isSupportedScreen, setIsSupportedScreen] = useState<boolean>(() => {
+    if (typeof window !== 'undefined') {
+      return window.innerWidth >= 768;
+    }
+    return true;
+  });
+
+  useEffect(() => {
+    const handleResize = () => {
+      setIsSupportedScreen(window.innerWidth >= 768);
+    };
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
 
   const activePage = project.pages[project.activePageIndex] || project.pages[0];
 
@@ -98,6 +115,14 @@ export const AppStoreDesignStudio: React.FC<AppStoreDesignStudioProps> = ({
     preloadCommonStudioFonts();
     if (initialFile) handleUploadScreenshot(initialFile);
   }, [initialFile, handleUploadScreenshot]);
+
+  if (!isSupportedScreen) {
+    return (
+      <div id="app-store-design-studio" className="flex flex-col h-full w-full bg-background overflow-hidden select-none">
+        <StudioDeviceRestrictionView currentWidth={typeof window !== 'undefined' ? window.innerWidth : 375} />
+      </div>
+    );
+  }
 
   return (
     <div id="app-store-design-studio" className="flex flex-col h-full w-full bg-background overflow-hidden select-none">

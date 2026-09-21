@@ -59,7 +59,7 @@ export const StudioTopBar: React.FC<StudioTopBarProps> = ({
   return (
     <div
       id="design-studio-topbar"
-      className="bg-surface border-b border-border px-4 py-2.5 flex items-center justify-between gap-3 text-xs shrink-0 select-none overflow-x-auto"
+      className="bg-surface border-b border-border px-2.5 sm:px-3 lg:px-4 py-2 flex items-center justify-between gap-1.5 sm:gap-2.5 lg:gap-3 text-xs shrink-0 select-none overflow-hidden w-full min-w-0"
     >
       <StudioTopBarLeft
         projectName={projectName}

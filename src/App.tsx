@@ -6,6 +6,7 @@ import { Navbar } from './components/layout/Navbar';
 import { AppRoutes } from './components/layout/AppRoutes';
 import { SplashScreen } from './components/layout/SplashScreen';
 import { processInputFile } from './lib/file-utils';
+import { setupBrowserZoomPrevention } from './lib/zoom-prevention';
 
 const TOOL_TITLES: Record<ToolId, string> = {
   home: 'Developer Media Toolkit — 100% Browser Local Utilities',
@@ -59,6 +60,12 @@ export default function App() {
 
   // Keep ref to previous object URL to revoke on change
   const activeUrlRef = useRef<string | null>(null);
+
+  // Prevent browser window zooming across the app to avoid UI distortion
+  useEffect(() => {
+    const cleanup = setupBrowserZoomPrevention();
+    return cleanup;
+  }, []);
 
   // Update document title dynamically based on active tool
   useEffect(() => {
