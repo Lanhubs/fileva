@@ -64,7 +64,6 @@ export const CursorToolControls: React.FC<CursorToolControlsProps> = ({
           title="Select & Transform (V)"
         >
           <FiMousePointer className="w-3.5 h-3.5" />
-          <span className="hidden sm:inline">Select</span>
         </button>
 
         <button
@@ -77,7 +76,6 @@ export const CursorToolControls: React.FC<CursorToolControlsProps> = ({
           title="Hand Pan Canvas (H or Space)"
         >
           <FiMove className="w-3.5 h-3.5" />
-          <span className="hidden sm:inline">Hand</span>
         </button>
 
         <button
@@ -90,7 +88,6 @@ export const CursorToolControls: React.FC<CursorToolControlsProps> = ({
           title="Zoom Tool (Z — Alt+Click to zoom out)"
         >
           <FiZoomIn className="w-3.5 h-3.5" />
-          <span className="hidden sm:inline">Zoom</span>
         </button>
 
         <button

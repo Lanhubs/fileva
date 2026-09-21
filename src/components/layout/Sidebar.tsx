@@ -31,7 +31,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
     >
       <div className="flex flex-col min-h-0 flex-1 overflow-hidden">
         {/* Brand Header */}
-        <div className={`border-b border-border flex items-center shrink-0 ${isCollapsed ? 'p-3 justify-center' : 'p-4 justify-between'}`}>
+        <div className={`flex items-center shrink-0 ${isCollapsed ? 'p-3 justify-center' : 'p-4 justify-between'}`}>
           <Link
             to="/"
             onClick={() => onSelectTool?.('home')}
@@ -103,7 +103,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
       </div>
 
       {/* Footer Area: Security info & expand toggle if collapsed */}
-      <div className={`border-t border-border text-xs text-text-muted shrink-0 ${isCollapsed ? 'p-2 flex flex-col items-center gap-2' : 'p-4 space-y-3'}`}>
+      <div className={` text-xs text-text-muted shrink-0 ${isCollapsed ? 'p-2 flex flex-col items-center gap-2' : 'p-4 space-y-3'}`}>
         {onToggleCollapse && isCollapsed ? (
           <button
             onClick={onToggleCollapse}
