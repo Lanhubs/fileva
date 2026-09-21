@@ -32,27 +32,21 @@ export const Navbar: React.FC<NavbarProps> = ({
       <div className="px-4 py-3 flex items-center justify-between">
         {/* Left: Mobile hamburger & Active Tool Name */}
         <div className="flex items-center gap-3">
-          <button
-            id="mobile-menu-button"
-            onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-            className="md:hidden p-2 rounded text-text-muted hover:bg-background hover:text-text-main focus:outline-hidden focus:ring-1 focus:ring-primary cursor-pointer"
-            aria-label="Toggle navigation menu"
-          >
-            {mobileMenuOpen ? <FiX className="w-5 h-5" /> : <FiMenu className="w-5 h-5" />}
-          </button>
+
 
           {/* Brand logo in header strictly reserved for smartphone view when sidebar is hidden */}
-          <div className="md:hidden flex items-center gap-2.5 shrink-0">
+          <div className="md:hidden flex items-center gap-2 shrink-0">
             <img
               src={filevaLogo}
               alt="Fileva logo"
               className="w-7 h-7 rounded object-contain bg-white"
             />
-            <span className="text-sm font-bold tracking-tight text-text-main">
+            <span className="text-md font-bold tracking-tight text-text-main ">
               FILEVA
             </span>
           </div>
 
+        </div>
           <div>
             <h1 className="text-base font-bold text-text-main flex items-center gap-2">
               <span className="truncate">{currentToolConfig.label}</span>
@@ -63,7 +57,6 @@ export const Navbar: React.FC<NavbarProps> = ({
               )}
             </h1>
           </div>
-        </div>
 
         {/* Right: Active File badge & Reset */}
         <div className="flex items-center gap-2 sm:gap-3">
@@ -87,11 +80,19 @@ export const Navbar: React.FC<NavbarProps> = ({
             </div>
           )}
         </div>
+        <button
+          id="mobile-menu-button"
+          onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+          className="md:hidden p-2 rounded text-text-muted hover:bg-background hover:text-text-main focus:outline-hidden focus:ring-1 focus:ring-primary cursor-pointer"
+          aria-label="Toggle navigation menu"
+        >
+          {mobileMenuOpen ? <FiX className="w-5 h-5" /> : <FiMenu className="w-5 h-5" />}
+        </button>
       </div>
 
       {/* Mobile Drawer Menu */}
       {mobileMenuOpen && (
-        <div className="md:hidden border-t border-border bg-surface p-3 space-y-1">
+        <div className="md:hidden border-t border-border bg-surface p-3 space-y-1 h-screen">
           {TOOLS_CONFIG.map((tool) => {
             const Icon = tool.icon;
             const isActive = activeTool === tool.id;
@@ -103,11 +104,10 @@ export const Navbar: React.FC<NavbarProps> = ({
                   onSelectTool?.(tool.id);
                   setMobileMenuOpen(false);
                 }}
-                className={`w-full flex items-center gap-3 px-3 py-2 rounded text-xs text-left transition-colors font-medium border-l-2 cursor-pointer ${
-                  isActive
+                className={`w-full flex items-center gap-3 px-3 py-2 rounded text-xs text-left transition-colors font-medium border-l-2 cursor-pointer ${isActive
                     ? 'bg-primary-light border-primary text-primary font-semibold'
                     : 'border-transparent text-text-muted hover:bg-background hover:text-text-main'
-                }`}
+                  }`}
               >
                 <Icon className={`w-4 h-4 shrink-0 ${isActive ? 'text-primary' : 'text-text-muted'}`} />
                 <div className="flex-1 min-w-0">

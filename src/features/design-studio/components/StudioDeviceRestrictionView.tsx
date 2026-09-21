@@ -12,7 +12,7 @@ export const StudioDeviceRestrictionView: React.FC<StudioDeviceRestrictionViewPr
   return (
     <div
       id="studio-device-restriction-view"
-      className="flex-1 w-full h-full min-h-[calc(100vh-5rem)] flex items-center justify-center p-4 sm:p-6 bg-background text-text-main select-none"
+      className="flex-1 w-full h-full min-h-[calc(100vh-5rem)] flex items-center justify-center  bg-background text-text-main select-none"
     >
       <div className="max-w-md w-full bg-surface border border-border rounded-xl p-6 sm:p-8 shadow-sm text-center">
         {/* Visual Device Archetype Badges */}
@@ -26,7 +26,7 @@ export const StudioDeviceRestrictionView: React.FC<StudioDeviceRestrictionViewPr
         </div>
 
         <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-background border border-border text-[11px] font-mono text-text-muted mb-3 uppercase tracking-wider font-semibold">
-          <span className="w-2 h-2 rounded-full bg-amber-500 animate-pulse" />
+          
           Tablet & Desktop Required
         </div>
 
