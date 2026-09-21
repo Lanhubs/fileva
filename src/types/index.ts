@@ -1,5 +1,6 @@
 export type ToolId = 
   | 'home'
+  | 'design-studio'
   | 'remover'
   | 'compressor'
   | 'icon-generator'

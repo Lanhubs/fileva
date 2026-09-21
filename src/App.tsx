@@ -1,21 +1,15 @@
-import  { useState, useEffect, useCallback, useRef, useMemo } from 'react';
-import { Routes, Route, Navigate, useLocation, useNavigate } from 'react-router-dom';
+import { useState, useEffect, useCallback, useRef, useMemo } from 'react';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { ToolId, ImageFileState } from './types';
 import { Sidebar, TOOLS_CONFIG } from './components/layout/Sidebar';
 import { Navbar } from './components/layout/Navbar';
-import { Dashboard } from './pages/Dashboard';
-import { BackgroundRemover } from './features/background-remover/BackgroundRemover';
-import { ImageCompressor } from './features/compressor/ImageCompressor';
-import { AppIconGenerator } from './features/icon-generator/AppIconGenerator';
-import { ColorExtractor } from './features/color-extractor/ColorExtractor';
-import { ImageCropper } from './features/cropper/ImageCropper';
-import { VideoCompressor } from './features/video-compressor/VideoCompressor';
-import { AudioCompressor } from './features/audio-compressor/AudioCompressor';
+import { AppRoutes } from './components/layout/AppRoutes';
 import { SplashScreen } from './components/layout/SplashScreen';
 import { processInputFile } from './lib/file-utils';
 
 const TOOL_TITLES: Record<ToolId, string> = {
   home: 'Developer Media Toolkit — 100% Browser Local Utilities',
+  'design-studio': 'App Store Design Studio — Developer Toolkit',
   'video-compressor': 'Video Compressor — Developer Toolkit',
   'audio-compressor': 'Audio Compressor — Developer Toolkit',
   remover: 'Background Remover — Developer Toolkit',
@@ -32,6 +26,7 @@ export default function App() {
   const activeTool: ToolId = useMemo(() => {
     const path = location.pathname;
     if (path === '/' || path === '') return 'home';
+    if (path === '/design-studio' || path === '/app-store-design-studio') return 'design-studio';
     if (path === '/video-compressor') return 'video-compressor';
     if (path === '/audio-compressor') return 'audio-compressor';
     if (path === '/background-remover' || path === '/remover') return 'remover';
@@ -45,6 +40,22 @@ export default function App() {
   const [activeFile, setActiveFile] = useState<ImageFileState | null>(null);
   const [globalError, setGlobalError] = useState<string | null>(null);
   const [showSplash, setShowSplash] = useState<boolean>(true);
+
+  // Initialize sidebar collapsed if opening directly into App Store Studio on tablet & desktop
+  const [isSidebarCollapsed, setIsSidebarCollapsed] = useState<boolean>(() => {
+    if (typeof window !== 'undefined' && window.innerWidth >= 768) {
+      const path = window.location.pathname;
+      return path === '/design-studio' || path === '/app-store-design-studio';
+    }
+    return false;
+  });
+
+  // Automatically collapse sidebar on tablet and desktop when opening App Store Design Studio
+  useEffect(() => {
+    if (activeTool === 'design-studio' && typeof window !== 'undefined' && window.innerWidth >= 768) {
+      setIsSidebarCollapsed(true);
+    }
+  }, [activeTool]);
 
   // Keep ref to previous object URL to revoke on change
   const activeUrlRef = useRef<string | null>(null);
@@ -120,11 +131,13 @@ export default function App() {
       {/* Full screen splash screen on app open */}
       {showSplash && <SplashScreen onComplete={() => setShowSplash(false)} />}
 
-      {/* Desktop Compact Sidebar */}
+      {/* Desktop & Tablet Sidebar */}
       <Sidebar
         activeTool={activeTool}
         onSelectTool={handleSelectTool}
         className="hidden md:flex"
+        isCollapsed={isSidebarCollapsed}
+        onToggleCollapse={() => setIsSidebarCollapsed((prev) => !prev)}
       />
 
       {/* Main Content Area */}
@@ -134,9 +147,17 @@ export default function App() {
           onSelectTool={handleSelectTool}
           activeFile={activeFile}
           onClearFile={handleClearFile}
+          isSidebarCollapsed={isSidebarCollapsed}
+          onToggleSidebar={() => setIsSidebarCollapsed((prev) => !prev)}
         />
 
-        <main className="flex-1 p-4 sm:p-6 lg:p-8 max-w-7xl w-full mx-auto">
+        <main
+          className={`flex-1 w-full mx-auto ${
+            activeTool === 'design-studio'
+              ? 'p-0 max-w-none h-[calc(100vh-4.25rem)] overflow-hidden flex flex-col'
+              : 'p-4 sm:p-6 lg:p-8 max-w-7xl'
+          }`}
+        >
           {globalError && (
             <div className="mb-6 p-4 rounded border border-red-200 dark:border-red-900/60 bg-red-50 dark:bg-red-950/40 text-red-700 dark:text-red-300 text-xs flex items-center justify-between">
               <div>
@@ -145,105 +166,19 @@ export default function App() {
               </div>
               <button
                 onClick={() => setGlobalError(null)}
-                className="text-red-700 dark:text-red-300 hover:text-red-900 dark:hover:text-red-100 font-bold px-2 py-1"
+                className="text-red-700 dark:text-red-300 hover:text-red-900 dark:hover:text-red-100 font-bold px-2 py-1 cursor-pointer"
               >
                 Dismiss
               </button>
             </div>
           )}
 
-          <Routes>
-            <Route
-              path="/"
-              element={
-                <Dashboard
-                  onSelectTool={handleSelectTool}
-                  onFileUploaded={(file) => {
-                    handleLoadFile(file);
-                    navigate('/image-compressor');
-                  }}
-                />
-              }
-            />
-            <Route
-              path="/video-compressor"
-              element={<VideoCompressor />}
-            />
-            <Route
-              path="/audio-compressor"
-              element={<AudioCompressor />}
-            />
-            <Route
-              path="/background-remover"
-              element={
-                <BackgroundRemover
-                  imageFile={activeFile}
-                  onFileSelect={handleLoadFile}
-                  onClear={handleClearFile}
-                />
-              }
-            />
-            <Route
-              path="/remover"
-              element={<Navigate to="/background-remover" replace />}
-            />
-            <Route
-              path="/image-compressor"
-              element={
-                <ImageCompressor
-                  imageFile={activeFile}
-                  onFileSelect={handleLoadFile}
-                  onClear={handleClearFile}
-                />
-              }
-            />
-            <Route
-              path="/compressor"
-              element={<Navigate to="/image-compressor" replace />}
-            />
-            <Route
-              path="/icon-generator"
-              element={
-                <AppIconGenerator
-                  imageFile={activeFile}
-                  onFileSelect={handleLoadFile}
-                  onClear={handleClearFile}
-                />
-              }
-            />
-            <Route
-              path="/app-icon-generator"
-              element={<Navigate to="/icon-generator" replace />}
-            />
-            <Route
-              path="/color-extractor"
-              element={
-                <ColorExtractor
-                  imageFile={activeFile}
-                  onFileSelect={handleLoadFile}
-                  onClear={handleClearFile}
-                />
-              }
-            />
-            <Route
-              path="/image-cropper"
-              element={
-                <ImageCropper
-                  imageFile={activeFile}
-                  onFileSelect={handleLoadFile}
-                  onClear={handleClearFile}
-                />
-              }
-            />
-            <Route
-              path="/cropper"
-              element={<Navigate to="/image-cropper" replace />}
-            />
-            <Route
-              path="*"
-              element={<Navigate to="/" replace />}
-            />
-          </Routes>
+          <AppRoutes
+            activeFile={activeFile}
+            onSelectTool={handleSelectTool}
+            onLoadFile={handleLoadFile}
+            onClearFile={handleClearFile}
+          />
         </main>
       </div>
     </div>

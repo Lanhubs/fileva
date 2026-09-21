@@ -13,6 +13,7 @@ import {
   FiLayers,
   FiFilm,
   FiMusic,
+  FiLayout,
 } from 'react-icons/fi';
 import { ToolId } from '../types';
 import { DropZone } from '../components/common/DropZone';
@@ -27,6 +28,15 @@ export const Dashboard: React.FC<DashboardProps> = ({
   onFileUploaded,
 }) => {
   const tools = [
+    {
+      id: 'design-studio' as ToolId,
+      path: '/design-studio',
+      name: 'App Store Design Studio',
+      tagline: 'Publish-ready screenshot sets & device mockups',
+      description: 'Create multi-screen Apple App Store & Google Play screenshot sets, feature graphics, and social promo banners with device frames and smart positioning.',
+      formats: 'PNG, JPEG, ZIP',
+      icon: FiLayout,
+    },
     {
       id: 'video-compressor' as ToolId,
       path: '/video-compressor',
@@ -129,7 +139,7 @@ export const Dashboard: React.FC<DashboardProps> = ({
             Available Utilities
           </h3>
           <span className="text-xs font-mono text-text-muted">
-            7 MODULES LOADED
+            8 MODULES LOADED
           </span>
         </div>
 

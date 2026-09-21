@@ -11,6 +11,8 @@ interface NavbarProps {
   onSelectTool?: (tool: ToolId) => void;
   activeFile: ImageFileState | null;
   onClearFile: () => void;
+  isSidebarCollapsed?: boolean;
+  onToggleSidebar?: () => void;
 }
 
 export const Navbar: React.FC<NavbarProps> = ({
@@ -18,6 +20,8 @@ export const Navbar: React.FC<NavbarProps> = ({
   onSelectTool,
   activeFile,
   onClearFile,
+  isSidebarCollapsed = false,
+  onToggleSidebar,
 }) => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
@@ -26,7 +30,7 @@ export const Navbar: React.FC<NavbarProps> = ({
   return (
     <header className="sticky top-0 z-30 bg-surface border-b border-border text-text-main">
       <div className="px-4 py-3 flex items-center justify-between">
-        {/* Left: Mobile hamburger & Active Tool Name */}
+        {/* Left: Mobile hamburger & Active Tool Name & Desktop Sidebar Toggle */}
         <div className="flex items-center gap-3">
           <button
             id="mobile-menu-button"
@@ -36,6 +40,19 @@ export const Navbar: React.FC<NavbarProps> = ({
           >
             {mobileMenuOpen ? <FiX className="w-5 h-5" /> : <FiMenu className="w-5 h-5" />}
           </button>
+
+          {/* Desktop Toggle Button when collapsed */}
+          {onToggleSidebar && (
+            <button
+              onClick={onToggleSidebar}
+              id="desktop-sidebar-toggle-btn"
+              className="hidden md:flex p-1.5 rounded text-text-muted hover:text-text-main hover:bg-background border border-transparent hover:border-border cursor-pointer transition-colors"
+              title={isSidebarCollapsed ? 'Expand sidebar' : 'Collapse sidebar'}
+              aria-label={isSidebarCollapsed ? 'Expand sidebar' : 'Collapse sidebar'}
+            >
+              <FiMenu className="w-4 h-4" />
+            </button>
+          )}
 
           <div className="xl:hidden flex items-center gap-2.5 shrink-0">
             <img
