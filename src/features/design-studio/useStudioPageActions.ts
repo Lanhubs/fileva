@@ -5,9 +5,10 @@ import { DEFAULT_PRESET, ALL_PRESETS } from './presets';
 interface UseStudioPageActionsProps {
   setProject: React.Dispatch<React.SetStateAction<DesignProject>>;
   activePage: DesignProject['pages'][0];
+  pushHistory?: (project: DesignProject) => void;
 }
 
-export function useStudioPageActions({ setProject, activePage }: UseStudioPageActionsProps) {
+export function useStudioPageActions({ setProject, activePage, pushHistory }: UseStudioPageActionsProps) {
   const handleAddPage = useCallback(() => {
     setProject((prev) => {
       const pageIndex = prev.pages.length + 1;
@@ -20,14 +21,16 @@ export function useStudioPageActions({ setProject, activePage }: UseStudioPageAc
           id: `layer-${Date.now()}-${Math.random().toString(36).substring(2, 6)}`,
         })),
       };
-      return {
+      const next = {
         ...prev,
         pages: [...prev.pages, newPage],
         activePageIndex: prev.pages.length,
         updatedAt: Date.now(),
       };
+      pushHistory?.(next);
+      return next;
     });
-  }, [setProject, activePage]);
+  }, [setProject, activePage, pushHistory]);
 
   const handleDuplicatePage = useCallback((index: number) => {
     setProject((prev) => {
@@ -44,27 +47,31 @@ export function useStudioPageActions({ setProject, activePage }: UseStudioPageAc
       };
       const updated = [...prev.pages];
       updated.splice(index + 1, 0, duplicated);
-      return {
+      const next = {
         ...prev,
         pages: updated,
         activePageIndex: index + 1,
         updatedAt: Date.now(),
       };
+      pushHistory?.(next);
+      return next;
     });
-  }, [setProject]);
+  }, [setProject, pushHistory]);
 
   const handleDeletePage = useCallback((index: number) => {
     setProject((prev) => {
       if (prev.pages.length <= 1) return prev;
       const updated = prev.pages.filter((_, idx) => idx !== index);
-      return {
+      const next = {
         ...prev,
         pages: updated,
         activePageIndex: Math.max(0, Math.min(index, updated.length - 1)),
         updatedAt: Date.now(),
       };
+      pushHistory?.(next);
+      return next;
     });
-  }, [setProject]);
+  }, [setProject, pushHistory]);
 
   const handleMovePage = useCallback((from: number, to: number) => {
     setProject((prev) => {
@@ -72,14 +79,16 @@ export function useStudioPageActions({ setProject, activePage }: UseStudioPageAc
       const updated = [...prev.pages];
       const [moved] = updated.splice(from, 1);
       updated.splice(to, 0, moved);
-      return {
+      const next = {
         ...prev,
         pages: updated,
         activePageIndex: to,
         updatedAt: Date.now(),
       };
+      pushHistory?.(next);
+      return next;
     });
-  }, [setProject]);
+  }, [setProject, pushHistory]);
 
   const handleChangeMode = useCallback((mode: DesignStudioMode) => {
     setProject((prev) => {
@@ -92,15 +101,17 @@ export function useStudioPageActions({ setProject, activePage }: UseStudioPageAc
         targetPreset = ALL_PRESETS.find((p) => p.platform === 'promo') || ALL_PRESETS[11];
       }
 
-      return {
+      const next = {
         ...prev,
         mode,
         dimensions: targetPreset,
         presetId: `${targetPreset.platform}-${targetPreset.deviceType}`,
         updatedAt: Date.now(),
       };
+      pushHistory?.(next);
+      return next;
     });
-  }, [setProject]);
+  }, [setProject, pushHistory]);
 
   return {
     handleAddPage,

@@ -7,16 +7,29 @@ export function useStudioHistory(
 ) {
   const [canUndo, setCanUndo] = useState<boolean>(false);
   const [canRedo, setCanRedo] = useState<boolean>(false);
+  const [historyFeedback, setHistoryFeedback] = useState<string | null>(null);
 
   const historyRef = useRef<Array<DesignProject>>([]);
   const historyIndexRef = useRef<number>(-1);
+  const feedbackTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
+  // Initialize history on mount or when project is loaded
   useEffect(() => {
-    if (historyRef.current.length === 0) {
-      historyRef.current = [project];
+    if (historyRef.current.length === 0 && project) {
+      historyRef.current = [JSON.parse(JSON.stringify(project))];
       historyIndexRef.current = 0;
+      setCanUndo(false);
+      setCanRedo(false);
     }
-  }, []);
+  }, [project]);
+
+  const showFeedback = (message: string) => {
+    if (feedbackTimeoutRef.current) clearTimeout(feedbackTimeoutRef.current);
+    setHistoryFeedback(message);
+    feedbackTimeoutRef.current = setTimeout(() => {
+      setHistoryFeedback(null);
+    }, 1200);
+  };
 
   const updateUndoRedoState = useCallback(() => {
     setCanUndo(historyIndexRef.current > 0);
@@ -25,14 +38,29 @@ export function useStudioHistory(
 
   const pushHistory = useCallback(
     (newProject: DesignProject) => {
-      const trimmed = historyRef.current.slice(0, historyIndexRef.current + 1);
-      trimmed.push(newProject);
-      if (trimmed.length > 30) trimmed.shift();
-      historyRef.current = trimmed;
-      historyIndexRef.current = trimmed.length - 1;
-      updateUndoRedoState();
+      try {
+        const cloned = JSON.parse(JSON.stringify(newProject));
+        const trimmed = historyRef.current.slice(0, historyIndexRef.current + 1);
+        trimmed.push(cloned);
+        if (trimmed.length > 50) trimmed.shift();
+        historyRef.current = trimmed;
+        historyIndexRef.current = trimmed.length - 1;
+        updateUndoRedoState();
+      } catch (err) {
+        console.error('Failed to push history snapshot:', err);
+      }
     },
     [updateUndoRedoState]
+  );
+
+  const recordSnapshot = useCallback(
+    (currentProject: DesignProject) => {
+      const last = historyRef.current[historyIndexRef.current];
+      if (!last || JSON.stringify(last) !== JSON.stringify(currentProject)) {
+        pushHistory(currentProject);
+      }
+    },
+    [pushHistory]
   );
 
   const handleUndo = useCallback(() => {
@@ -40,8 +68,9 @@ export function useStudioHistory(
       historyIndexRef.current -= 1;
       const prev = historyRef.current[historyIndexRef.current];
       if (prev) {
-        setProject(prev);
+        setProject(JSON.parse(JSON.stringify(prev)));
         updateUndoRedoState();
+        showFeedback('Undo');
       }
     }
   }, [setProject, updateUndoRedoState]);
@@ -51,8 +80,9 @@ export function useStudioHistory(
       historyIndexRef.current += 1;
       const next = historyRef.current[historyIndexRef.current];
       if (next) {
-        setProject(next);
+        setProject(JSON.parse(JSON.stringify(next)));
         updateUndoRedoState();
+        showFeedback('Redo');
       }
     }
   }, [setProject, updateUndoRedoState]);
@@ -60,8 +90,11 @@ export function useStudioHistory(
   return {
     canUndo,
     canRedo,
+    historyFeedback,
     pushHistory,
+    recordSnapshot,
     handleUndo,
     handleRedo,
   };
 }
+

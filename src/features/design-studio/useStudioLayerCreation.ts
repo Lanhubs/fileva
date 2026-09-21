@@ -4,9 +4,10 @@ import { DesignProject, Layer, TextLayer, DeviceLayer, ShapeLayer } from './type
 interface UseStudioLayerCreationProps {
   setProject: React.Dispatch<React.SetStateAction<DesignProject>>;
   setSelectedLayerId: (id: string | null) => void;
+  pushHistory?: (project: DesignProject) => void;
 }
 
-export function useStudioLayerCreation({ setProject, setSelectedLayerId }: UseStudioLayerCreationProps) {
+export function useStudioLayerCreation({ setProject, setSelectedLayerId, pushHistory }: UseStudioLayerCreationProps) {
   const handleAddTextLayer = useCallback(() => {
     setProject((prev) => {
       const pages = [...prev.pages];
@@ -37,9 +38,11 @@ export function useStudioLayerCreation({ setProject, setSelectedLayerId }: UseSt
       page.layers = [...page.layers, newText];
       pages[prev.activePageIndex] = page;
       setSelectedLayerId(newText.id);
-      return { ...prev, pages, updatedAt: Date.now() };
+      const next = { ...prev, pages, updatedAt: Date.now() };
+      pushHistory?.(next);
+      return next;
     });
-  }, [setProject, setSelectedLayerId]);
+  }, [setProject, setSelectedLayerId, pushHistory]);
 
   const handleAddDeviceLayer = useCallback(() => {
     setProject((prev) => {
@@ -76,9 +79,11 @@ export function useStudioLayerCreation({ setProject, setSelectedLayerId }: UseSt
       page.layers = [...page.layers, newDev];
       pages[prev.activePageIndex] = page;
       setSelectedLayerId(newDev.id);
-      return { ...prev, pages, updatedAt: Date.now() };
+      const next = { ...prev, pages, updatedAt: Date.now() };
+      pushHistory?.(next);
+      return next;
     });
-  }, [setProject, setSelectedLayerId]);
+  }, [setProject, setSelectedLayerId, pushHistory]);
 
   const handleAddShapeLayer = useCallback(() => {
     setProject((prev) => {
@@ -104,9 +109,11 @@ export function useStudioLayerCreation({ setProject, setSelectedLayerId }: UseSt
       page.layers = [...page.layers, newShape];
       pages[prev.activePageIndex] = page;
       setSelectedLayerId(newShape.id);
-      return { ...prev, pages, updatedAt: Date.now() };
+      const next = { ...prev, pages, updatedAt: Date.now() };
+      pushHistory?.(next);
+      return next;
     });
-  }, [setProject, setSelectedLayerId]);
+  }, [setProject, setSelectedLayerId, pushHistory]);
 
   return { handleAddTextLayer, handleAddDeviceLayer, handleAddShapeLayer };
 }

@@ -18,6 +18,7 @@ interface CanvasEditorViewProps {
   showGuides: boolean;
   cursorMode?: StudioCursorMode;
   onZoomChange?: (newZoom: number) => void;
+  onCommitHistory?: () => void;
 }
 
 export const CanvasEditorView: React.FC<CanvasEditorViewProps> = ({
@@ -32,6 +33,7 @@ export const CanvasEditorView: React.FC<CanvasEditorViewProps> = ({
   showGuides,
   cursorMode = 'select',
   onZoomChange,
+  onCommitHistory,
 }) => {
   const containerRef = useRef<HTMLDivElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -57,6 +59,7 @@ export const CanvasEditorView: React.FC<CanvasEditorViewProps> = ({
     onSelectLayer,
     onUpdateLayer,
     onZoomChange,
+    onCommitHistory,
   });
 
   // Re-render HTML5 Canvas output when page state, dimensions, or assets update, or when a font finishes loading

@@ -14,6 +14,7 @@ interface UseCanvasInteractionsProps {
   onSelectLayer: (layerId: string | null) => void;
   onUpdateLayer: (updated: Layer) => void;
   onZoomChange?: (newZoom: number) => void;
+  onCommitHistory?: () => void;
 }
 
 export function useCanvasInteractions({
@@ -25,6 +26,7 @@ export function useCanvasInteractions({
   onSelectLayer,
   onUpdateLayer,
   onZoomChange,
+  onCommitHistory,
 }: UseCanvasInteractionsProps) {
   const [panOffset, setPanOffset] = useState<PanOffset>({ x: 0, y: 0 });
   const [isPanning, setIsPanning] = useState(false);
@@ -89,11 +91,14 @@ export function useCanvasInteractions({
   );
 
   const handlePointerUp = useCallback(() => {
+    if (dragState || resizeState) {
+      onCommitHistory?.();
+    }
     setIsPanning(false);
     setDragState(null);
     setResizeState(null);
     setSnapGuides({});
-  }, []);
+  }, [dragState, resizeState, onCommitHistory]);
 
   const handlePointerDownLayer = (e: React.PointerEvent, layer: Layer) => {
     if (cursorMode === 'hand') return;

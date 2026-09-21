@@ -9,11 +9,24 @@ interface UseStudioHotkeysAndZoomProps {
   selectedLayerId?: string | null;
   onDeleteSelectedLayer?: () => void;
   onDuplicateSelectedLayer?: () => void;
+  onCopySelectedLayer?: () => void;
+  onPasteLayer?: () => void;
+  onCutSelectedLayer?: () => void;
+  onToggleLayerLock?: () => void;
+  onToggleLayerVisibility?: () => void;
+  onReorderLayerDepth?: (action: 'front' | 'back' | 'forward' | 'backward') => void;
   onDeselectLayer?: () => void;
   onUndo?: () => void;
   onRedo?: () => void;
   onNudgeSelectedLayer?: (dx: number, dy: number) => void;
   onFitCanvas?: () => void;
+  onAddTextLayer?: () => void;
+  onAddShapeLayer?: () => void;
+  onAddDeviceLayer?: () => void;
+  onTogglePreviewMode?: () => void;
+  onExportCurrent?: () => void;
+  onExportAll?: () => void;
+  onOpenShortcutsModal?: () => void;
 }
 
 export function useStudioHotkeysAndZoom({
@@ -23,15 +36,28 @@ export function useStudioHotkeysAndZoom({
   selectedLayerId,
   onDeleteSelectedLayer,
   onDuplicateSelectedLayer,
+  onCopySelectedLayer,
+  onPasteLayer,
+  onCutSelectedLayer,
+  onToggleLayerLock,
+  onToggleLayerVisibility,
+  onReorderLayerDepth,
   onDeselectLayer,
   onUndo,
   onRedo,
   onNudgeSelectedLayer,
   onFitCanvas,
+  onAddTextLayer,
+  onAddShapeLayer,
+  onAddDeviceLayer,
+  onTogglePreviewMode,
+  onExportCurrent,
+  onExportAll,
+  onOpenShortcutsModal,
 }: UseStudioHotkeysAndZoomProps) {
   useEffect(() => {
     const calcFitZoom = () => {
-      const availWidth = window.innerWidth - (window.innerWidth >= 1024 ? 400 : 80);
+      const availWidth = window.innerWidth - (window.innerWidth >= 1024 ? 420 : 80);
       const availHeight = window.innerHeight - 240;
       const fitW = availWidth / dimensions.width;
       const fitH = availHeight / dimensions.height;
@@ -46,9 +72,16 @@ export function useStudioHotkeysAndZoom({
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
-      const activeTag = (e.target as HTMLElement)?.tagName;
-      const isContentEditable = (e.target as HTMLElement)?.isContentEditable;
-      if (['INPUT', 'TEXTAREA', 'SELECT'].includes(activeTag) || isContentEditable) {
+      const activeElement = document.activeElement as HTMLElement | null;
+      const activeTag = activeElement?.tagName;
+      const isInputActive =
+        ['INPUT', 'TEXTAREA', 'SELECT'].includes(activeTag || '') || activeElement?.isContentEditable;
+
+      // When inside text inputs: Escape blurs input, and plain letters shouldn't trigger shortcuts
+      if (isInputActive) {
+        if (e.key === 'Escape') {
+          activeElement?.blur();
+        }
         return;
       }
 
@@ -70,22 +103,76 @@ export function useStudioHotkeysAndZoom({
         return;
       }
 
-      // Duplicate: Cmd/Ctrl + D
-      if (cmdOrCtrl && key === 'd') {
-        if (selectedLayerId) {
-          e.preventDefault();
-          onDuplicateSelectedLayer?.();
-        }
+      // Copy: Cmd/Ctrl + C
+      if (cmdOrCtrl && key === 'c' && selectedLayerId) {
+        e.preventDefault();
+        onCopySelectedLayer?.();
         return;
       }
 
-      // Zoom shortcuts: Cmd/Ctrl + (+/-/0)
-      if (cmdOrCtrl && (key === '=' || key === '+')) {
+      // Paste: Cmd/Ctrl + V
+      if (cmdOrCtrl && key === 'v') {
         e.preventDefault();
-        setZoom((prev) => Math.min(1.5, Number((prev + 0.05).toFixed(2))));
+        onPasteLayer?.();
         return;
       }
-      if (cmdOrCtrl && key === '-') {
+
+      // Cut: Cmd/Ctrl + X
+      if (cmdOrCtrl && key === 'x' && selectedLayerId) {
+        e.preventDefault();
+        onCutSelectedLayer?.();
+        return;
+      }
+
+      // Duplicate: Cmd/Ctrl + D
+      if (cmdOrCtrl && key === 'd' && selectedLayerId) {
+        e.preventDefault();
+        onDuplicateSelectedLayer?.();
+        return;
+      }
+
+      // Lock / Unlock: Cmd/Ctrl + L
+      if (cmdOrCtrl && key === 'l' && selectedLayerId) {
+        e.preventDefault();
+        onToggleLayerLock?.();
+        return;
+      }
+
+      // Visibility: Cmd/Ctrl + Shift + H OR Cmd/Ctrl + H
+      if (cmdOrCtrl && (key === 'h' || (key === 'h' && e.shiftKey)) && selectedLayerId) {
+        e.preventDefault();
+        onToggleLayerVisibility?.();
+        return;
+      }
+
+      // Export Page: Cmd/Ctrl + S OR Cmd/Ctrl + E
+      if (cmdOrCtrl && !e.shiftKey && (key === 's' || key === 'e')) {
+        e.preventDefault();
+        onExportCurrent?.();
+        return;
+      }
+
+      // Export All Pages (ZIP): Cmd/Ctrl + Shift + E
+      if (cmdOrCtrl && e.shiftKey && key === 'e') {
+        e.preventDefault();
+        onExportAll?.();
+        return;
+      }
+
+      // Help / Shortcuts Cheatsheet: ? OR Shift + / OR Cmd/Ctrl + /
+      if (key === '?' || (cmdOrCtrl && key === '/')) {
+        e.preventDefault();
+        onOpenShortcutsModal?.();
+        return;
+      }
+
+      // Zoom shortcuts: Cmd/Ctrl + (+/-/0/1/2)
+      if (cmdOrCtrl && (key === '=' || key === '+')) {
+        e.preventDefault();
+        setZoom((prev) => Math.min(2.0, Number((prev + 0.05).toFixed(2))));
+        return;
+      }
+      if (cmdOrCtrl && (key === '-' || key === '_')) {
         e.preventDefault();
         setZoom((prev) => Math.max(0.1, Number((prev - 0.05).toFixed(2))));
         return;
@@ -93,6 +180,28 @@ export function useStudioHotkeysAndZoom({
       if (cmdOrCtrl && key === '0') {
         e.preventDefault();
         onFitCanvas?.();
+        return;
+      }
+      if (cmdOrCtrl && key === '1') {
+        e.preventDefault();
+        setZoom(1.0);
+        return;
+      }
+      if (cmdOrCtrl && key === '2') {
+        e.preventDefault();
+        setZoom(0.5);
+        return;
+      }
+
+      // Layer depth reordering: [ and ]
+      if (key === '[' && selectedLayerId) {
+        e.preventDefault();
+        onReorderLayerDepth?.(e.shiftKey ? 'back' : 'backward');
+        return;
+      }
+      if (key === ']' && selectedLayerId) {
+        e.preventDefault();
+        onReorderLayerDepth?.(e.shiftKey ? 'front' : 'forward');
         return;
       }
 
@@ -122,6 +231,30 @@ export function useStudioHotkeysAndZoom({
         return;
       }
 
+      // Quick Creation shortcuts: T (text), S or R (shape), D or F (device)
+      if (key === 't' && !cmdOrCtrl) {
+        e.preventDefault();
+        onAddTextLayer?.();
+        return;
+      }
+      if ((key === 's' || key === 'r') && !cmdOrCtrl) {
+        e.preventDefault();
+        onAddShapeLayer?.();
+        return;
+      }
+      if ((key === 'd' || key === 'f') && !cmdOrCtrl && !selectedLayerId) {
+        e.preventDefault();
+        onAddDeviceLayer?.();
+        return;
+      }
+
+      // Preview mode: P
+      if (key === 'p' && !cmdOrCtrl) {
+        e.preventDefault();
+        onTogglePreviewMode?.();
+        return;
+      }
+
       // Cursor Tools hotkeys
       if (key === 'v') setCursorMode('select');
       else if (key === 'h') setCursorMode('hand');
@@ -138,12 +271,26 @@ export function useStudioHotkeysAndZoom({
     selectedLayerId,
     onDeleteSelectedLayer,
     onDuplicateSelectedLayer,
+    onCopySelectedLayer,
+    onPasteLayer,
+    onCutSelectedLayer,
+    onToggleLayerLock,
+    onToggleLayerVisibility,
+    onReorderLayerDepth,
     onDeselectLayer,
     onUndo,
     onRedo,
     onNudgeSelectedLayer,
     onFitCanvas,
+    onAddTextLayer,
+    onAddShapeLayer,
+    onAddDeviceLayer,
+    onTogglePreviewMode,
+    onExportCurrent,
+    onExportAll,
+    onOpenShortcutsModal,
     setCursorMode,
     setZoom,
   ]);
 }
+
